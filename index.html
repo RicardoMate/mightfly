@@ -42,13 +42,13 @@
       color: #fff;
       font-weight: 600;
     }
-    .note { opacity: .6; font-size: .9rem; text-align: center; }
+         .note { opacity: .6; font-size: .9rem; text-align: center; }
 
     /* Separator */
     .divider { width:min(920px, 92vw); height:1px; background: rgba(255,255,255,.12); margin: 8px 0 2px; }
 
-    /* Flappy Kiwi section (scoped styles) */
-    .flappy { width:100%; display:grid; place-items:center; }
+         /* Flappy Kiwi section (scoped styles) */
+     .flappy { width:100%; display:grid; place-items:center; }
     .flappy .wrap { display:grid; place-items:center; gap:14px; width:100%; }
     .flappy canvas { width:min(92vw, 800px); height:calc(min(92vw, 800px)*3/5); max-height:78vh; aspect-ratio: 5/3; border-radius:18px; box-shadow: 0 20px 60px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.08); background:#83d0ff; }
     .flappy .hud { text-align:center; opacity:.9; }
@@ -57,28 +57,183 @@
     .flappy button:active { transform: translateY(1px); }
     .flappy .hint { font-size: 14px; opacity:.8 }
 
-    /* Overlay score form */
-    .flappy .overlay { position: fixed; inset: 0; display:none; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
-    .flappy .card { background: rgba(15,23,42,0.92); color:#fff; border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:14px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); width:min(92vw, 420px); }
-    .flappy .row { display:flex; gap:8px; margin-top:10px; }
-    .flappy .row input { flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.15); background:#0b1220; color:#fff; }
-    .flappy .row button { padding:10px 12px; border-radius:10px; background:#22c55e; box-shadow:none; }
-    .flappy .row .ghost { background:transparent; border:1px solid rgba(255,255,255,0.18); color:#e6edf3; }
-    .flappy .small { font-size:12px; opacity:.8 }
+         /* Overlay score form */
+     .flappy .overlay { position: fixed; inset: 0; display:none; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
+     .flappy .card { background: rgba(15,23,42,0.92); color:#fff; border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:14px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); width:min(92vw, 420px); }
+     .flappy .row { display:flex; gap:8px; margin-top:10px; }
+     .flappy .row input { flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.15); background:#0b1220; color:#fff; }
+     .flappy .row button { padding:10px 12px; border-radius:10px; background:#22c55e; box-shadow:none; }
+     .flappy .row .ghost { background:transparent; border:1px solid rgba(255,255,255,0.18); color:#e6edf3; }
+     .flappy .small { font-size:12px; opacity:.8 }
+     
+                  /* Corner penguin image */
+               .corner-penguin {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          width: 120px;
+          height: 120px;
+          z-index: 1000;
+          cursor: pointer;
+          transition: transform 0.2s ease;
+        }
+        
+        .corner-penguin:hover {
+          transform: scale(1.1);
+        }
+        
+        .corner-penguin img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+        
+        .corner-penguin .twitter-text {
+          position: absolute;
+          top: -25px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #1da1f2;
+          color: white;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+          box-shadow: 0 2px 8px rgba(29, 161, 242, 0.3);
+        }
+      
+             /* Corner penguin image right (mirrored) */
+       .corner-penguin-right {
+         position: fixed;
+         bottom: 0;
+         right: 0;
+         width: 120px;
+         height: 120px;
+         z-index: 1000;
+         cursor: pointer;
+         transition: transform 0.2s ease;
+         transform: scaleX(-1); /* Mirror effect */
+       }
+       
+       .corner-penguin-right:hover {
+         transform: scaleX(-1) scale(1.1);
+       }
+       
+       .corner-penguin-right img {
+         width: 100%;
+         height: 100%;
+         object-fit: contain;
+       }
+       
+               .corner-penguin-right .telegram-text {
+          position: absolute;
+          top: -25px;
+          left: 50%;
+          transform: translateX(-50%) scaleX(-1);
+          background: #0088cc;
+          color: white;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+          box-shadow: 0 2px 8px rgba(0, 136, 204, 0.3);
+        }
+        
+        /* Top right logo buttons container */
+        .top-logos {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          display: flex;
+          gap: 15px;
+          z-index: 1000;
+        }
+        
+        /* Top right logo button */
+        .top-logo {
+          width: 80px;
+          height: 80px;
+          cursor: pointer;
+          transition: transform 0.2s ease;
+        }
+        
+        .top-logo:hover {
+          transform: scale(1.1);
+        }
+        
+        .top-logo img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+        
+        /* ABS logo specific size (10% smaller) */
+        .top-logo.abs-logo {
+          width: 72px;  /* 80px * 0.9 = 72px */
+          height: 72px; /* 80px * 0.9 = 72px */
+        }
+        
+        /* Top left title image */
+        .top-title {
+          position: fixed;
+          top: 20px;
+          left: 20px;
+          width: 400px;
+          height: auto;
+          z-index: 1000;
+          cursor: pointer;
+          transition: transform 0.2s ease;
+        }
+        
+        .top-title:hover {
+          transform: scale(1.05);
+        }
+        
+        .top-title img {
+          width: 100%;
+          height: auto;
+          object-fit: contain;
+        }
   </style>
 </head>
-<body>
-  <!-- Hero: spinning kiwi + caption + CA -->
-  <section class="hero">
-    <video autoplay loop muted playsinline>
-      <source src="https://media.tenor.com/qYjLPtfuvUIAAAPo/kiwi.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
+    <body>
+    <!-- Top left title image -->
+    <div class="top-title" onclick="// TODO: Add link here">
+      <img src="images/title.png" alt="Title">
+    </div>
+    
+    <!-- Top right logo buttons -->
+    <div class="top-logos">
+      <div class="top-logo abs-logo" onclick="// TODO: Add link here">
+        <img src="images/abslogo.png" alt="ABS Logo">
+      </div>
+      <div class="top-logo" onclick="// TODO: Add link here">
+        <img src="images/moonlogo.png" alt="Moon Logo">
+      </div>
+    </div>
+    
+    <!-- Corner penguin image -->
+    <div class="corner-penguin" onclick="window.open('https://twitter.com', '_blank')">
+      <img src="images/image2.png" alt="Corner Penguin">
+      <div class="twitter-text">Twitter</div>
+    </div>
+    
+         <!-- Corner penguin image right (mirrored) -->
+     <div class="corner-penguin-right" onclick="window.open('https://telegram.org', '_blank')">
+       <img src="images/image2.png" alt="Corner Penguin Right">
+       <div class="telegram-text">Telegram</div>
+     </div>
+    
+    <!-- Hero: spinning kiwi + caption + CA -->
+    <section class="hero">
+    <img src="https://media.tenor.com/j-nvjwHJBXMAAAAj/pengu-pudgy.gif" alt="Pengu Pudgy GIF" style="max-width: 92vw; max-height: 58vh; border-radius: 12px;">
 
     <div class="caption">This thing might fly</div>
 
     <div class="ca-wrap">
-      <div id="ca" class="ca">CA: 72Nb8vtM6KPhiidZBscKVzzyUrUckM83B4ChW6Vpump</div>
+             <div id="ca" class="ca">CA: will be updated on launch</div>
       <button class="copy" id="copyBtn">Copy</button>
     </div>
 
@@ -253,60 +408,30 @@
         ctx.closePath(); ctx.fill();
       }
 
-      function drawKiwi(k){
-        ctx.save();
-        ctx.translate(k.x, k.y);
-        const tilt = clamp(k.vy/600, -0.6, 0.6);
-        ctx.rotate(tilt);
+                                                                                   // Cargar imagen del pingüino
+                      const penguinImg = new Image();
+                      penguinImg.src = 'images/image1.png';
+                     
+                     function drawKiwi(k){
+                       ctx.save();
+                       ctx.translate(k.x, k.y);
+                       const tilt = clamp(k.vy/600, -0.6, 0.6);
+                       ctx.rotate(tilt);
 
-        ctx.fillStyle = '#7a5a3f';
-        ctx.strokeStyle = '#5e462f';
-        ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.ellipse(0, 0, k.r*1.2, k.r*1.05, 0.1, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                       // Dibujar el pingüino usando la imagen
+                       if (penguinImg.complete) {
+                         const size = k.r * 2.4; // Tamaño del pingüino
+                         ctx.drawImage(penguinImg, -size/2, -size/2, size, size);
+                       } else {
+                         // Fallback: dibujar un círculo simple mientras carga la imagen
+                         ctx.fillStyle = '#000';
+                         ctx.beginPath();
+                         ctx.arc(0, 0, k.r, 0, Math.PI*2);
+                         ctx.fill();
+                       }
 
-        ctx.fillStyle = '#9b7757';
-        ctx.beginPath(); ctx.ellipse(-4, 4, k.r*0.7, k.r*0.6, 0.3, 0, Math.PI*2); ctx.fill();
-
-        const wingOff = Math.sin(time*9) * 5;
-        ctx.save();
-        ctx.translate(-6, -3);
-        ctx.rotate(-0.6 + wingOff*0.03);
-        ctx.fillStyle = '#654b34';
-        ctx.beginPath();
-        ctx.moveTo(-k.r*0.2, 0);
-        ctx.quadraticCurveTo(-k.r*0.9, -8, -k.r*0.6, -18);
-        ctx.quadraticCurveTo(-2, -10, 0, 0);
-        ctx.closePath(); ctx.fill();
-        ctx.restore();
-
-        ctx.fillStyle = '#7a5a3f';
-        ctx.beginPath(); ctx.ellipse(k.r*0.6, -k.r*0.25, k.r*0.6, k.r*0.5, 0, 0, Math.PI*2); ctx.fill();
-
-        ctx.fillStyle = '#000';
-        ctx.beginPath(); ctx.arc(k.r*0.95, -k.r*0.33, 3, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#fff';
-        ctx.beginPath(); ctx.arc(k.r*0.9, -k.r*0.37, 1.3, 0, Math.PI*2); ctx.fill();
-
-        ctx.strokeStyle = '#d9b36b';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(k.r*1.0, -k.r*0.28);
-        ctx.lineTo(k.r*2.1, -k.r*0.24);
-        ctx.stroke();
-
-        ctx.strokeStyle = '#b08a55';
-        ctx.lineWidth = 2.5;
-        const footY = k.r*0.9;
-        ctx.beginPath(); ctx.moveTo(-6, footY); ctx.lineTo(-6, footY+12); ctx.stroke();
-        ctx.beginPath(); ctx.MoveTo= null
-        ctx.beginPath(); ctx.moveTo(4, footY-2); ctx.lineTo(4, footY+11); ctx.stroke();
-
-        ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(-6, footY+12); ctx.lineTo(-12, footY+14); ctx.moveTo(-6, footY+12); ctx.lineTo(-2, footY+15); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(4, footY+11); ctx.lineTo(0, footY+14); ctx.moveTo(4, footY+11); ctx.lineTo(10, footY+13); ctx.stroke();
-
-        ctx.restore();
-      }
+                       ctx.restore();
+                     }
 
       function addPipe(){
         const gap = clamp(190 - score*1.5, 140, 190);
