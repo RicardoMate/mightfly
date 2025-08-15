@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spinning Kiwi + Flappy Kiwi</title>
+  <meta name="description" content="This thing might fly. Play Flappy Kiwi." />
+  <style>
+    :root { --fg:#fff; --bg:#000; --accent:#1f6feb; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      padding: 16px;
+    }
+    /* Hero / video */
+    .hero { display:flex; flex-direction:column; align-items:center; gap:14px; width:100%; }
+    video { max-width: 92vw; max-height: 58vh; border-radius: 12px; }
+    .caption { font-size: 1.6rem; opacity: .9; text-align: center; }
+    .ca-wrap { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
+    .ca {
+      font-size: 1rem;
+      opacity: .85;
+      word-break: break-all;
+      background: rgba(255,255,255,.08);
+      padding: 10px 12px;
+      border-radius: 10px;
+    }
+    button.copy {
+      cursor: pointer;
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+    .note { opacity: .6; font-size: .9rem; text-align: center; }
+
+    /* Separator */
+    .divider { width:min(920px, 92vw); height:1px; background: rgba(255,255,255,.12); margin: 8px 0 2px; }
+
+    /* Flappy Kiwi section (scoped styles) */
+    .flappy { width:100%; display:grid; place-items:center; }
+    .flappy .wrap { display:grid; place-items:center; gap:14px; width:100%; }
+    .flappy canvas { width:min(92vw, 800px); height:calc(min(92vw, 800px)*3/5); max-height:78vh; aspect-ratio: 5/3; border-radius:18px; box-shadow: 0 20px 60px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.08); background:#83d0ff; }
+    .flappy .hud { text-align:center; opacity:.9; }
+    .flappy .btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .flappy button { background:#1f6feb; color:white; border:none; padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer; box-shadow: 0 6px 16px rgba(31,111,235,.3); }
+    .flappy button:active { transform: translateY(1px); }
+    .flappy .hint { font-size: 14px; opacity:.8 }
+
+    /* Overlay score form */
+    .flappy .overlay { position: fixed; inset: 0; display:none; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
+    .flappy .card { background: rgba(15,23,42,0.92); color:#fff; border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:14px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); width:min(92vw, 420px); }
+    .flappy .row { display:flex; gap:8px; margin-top:10px; }
+    .flappy .row input { flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.15); background:#0b1220; color:#fff; }
+    .flappy .row button { padding:10px 12px; border-radius:10px; background:#22c55e; box-shadow:none; }
+    .flappy .row .ghost { background:transparent; border:1px solid rgba(255,255,255,0.18); color:#e6edf3; }
+    .flappy .small { font-size:12px; opacity:.8 }
+  </style>
+</head>
+<body>
+  <!-- Hero: spinning kiwi + caption + CA -->
+  <section class="hero">
+    <video autoplay loop muted playsinline>
+      <source src="https://media.tenor.com/qYjLPtfuvUIAAAPo/kiwi.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+
+    <div class="caption">This thing might fly</div>
+
+    <div class="ca-wrap">
+      <div id="ca" class="ca">CA: 72Nb8vtM6KPhiidZBscKVzzyUrUckM83B4ChW6Vpump</div>
+      <button class="copy" id="copyBtn">Copy</button>
+    </div>
+
+    <div class="note">Tip: click “Copy” to copy the CA to your clipboard.</div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Flappy Kiwi section -->
+  <section class="flappy" aria-label="Flappy Kiwi Game">
+    <div class="wrap">
+      <canvas id="game" width="800" height="480" aria-label="Kiwi Flappy game" role="img"></canvas>
+      <div class="hud">
+        <div class="btns">
+          <button id="startBtn">Start / Flap (Space or Click)</button>
+          <button id="restartBtn">Restart</button>
+          <button id="pauseBtn">Pause</button>
+        </div>
+        <div class="hint">Tap / click / press Space to flap. Avoid the pipes. Kiwi faces ➡️ (to the right).</div>
+      </div>
+    </div>
+
+    <!-- High Score submit overlay -->
+    <div class="overlay" id="scoreOverlay" aria-hidden="true">
+      <div class="card">
+        <div style="font-weight:700; font-size:18px;">Submit your score</div>
+        <div class="small">Add your Twitter handle (optional) to appear on the Top 10 board.</div>
+        <div class="row">
+          <input id="handleInput" type="text" placeholder="@yourhandle" maxlength="32" autocomplete="nickname">
+          <button id="saveScoreBtn">Save</button>
+          <button id="skipBtn" class="ghost">Skip</button>
+        </div>
+        <div class="small" id="scorePreview"></div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Copy CA button
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      const caText = document.getElementById('ca').textContent.replace(/^CA:\s*/,'').trim();
+      try {
+        await navigator.clipboard.writeText(caText);
+        const btn = document.getElementById('copyBtn');
+        const old = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = old, 1200);
+      } catch (e) { alert('Copy failed.'); }
+    });
+
+    // ---- Flappy Kiwi game ----
+    (() => {
+      const canvas = document.getElementById('game');
+      const ctx = canvas.getContext('2d');
+
+      // Utils
+      const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+      const rand = (a,b) => Math.random()*(b-a)+a;
+
+      // World
+      const W = canvas.width, H = canvas.height;
+      let time = 0, dt = 0, last = performance.now();
+
+      // Game state
+      const State = { Ready:0, Playing:1, Paused:2, Dead:3 };
+      let state = State.Ready;
+
+      // Physics
+      const gravity = 1600;
+      const flapV   = -460;
+      const termVel = 900;
+
+      // Kiwi
+      const kiwi = { x: W*0.28, y: H*0.45, vy: 0, r: 18 };
+
+      // Pipes
+      let pipes = [];
+      let pipeTimer = 0;
+      let spawnInt = 1.25;
+      let speed = 200;
+      let score = 0;
+      let best = +localStorage.getItem('kiwi_best'||0) || 0;
+
+      // Leaderboard
+      let leaderboard = loadLB();
+      let scoreSaved = false;
+
+      function loadLB(){
+        try { return JSON.parse(localStorage.getItem('kiwi_lb')||'[]'); }
+        catch { return []; }
+      }
+      function saveLB(arr){ localStorage.setItem('kiwi_lb', JSON.stringify(arr)); }
+      function safeTop10(arr){
+        return (arr||[])
+          .filter(r=> r && typeof r.name==='string' && Number.isFinite(+r.score))
+          .map(r=>({ name: r.name.slice(0,32), score: Math.max(0, Math.floor(+r.score)), ts: r.ts||Date.now() }))
+          .sort((a,b)=> b.score - a.score || a.ts - b.ts)
+          .slice(0,10);
+      }
+      function submitScore(handle){
+        const clean = (handle||'').trim();
+        const name = clean ? (clean.startsWith('@')? clean : '@'+clean) : 'Anonymous';
+        leaderboard.push({ name, score, ts: Date.now() });
+        leaderboard = safeTop10(leaderboard);
+        saveLB(leaderboard);
+        localStorage.setItem('kiwi_last_handle', clean);
+        scoreSaved = true;
+      }
+
+      // Controls
+      function flap(){ if (state===State.Ready) start(); if (state===State.Playing) kiwi.vy = flapV; }
+      function start(){ if (state===State.Ready || state===State.Dead){ state=State.Playing; kiwi.vy = flapV; hideOverlay(); } }
+      function restart(){ reset(); hideOverlay(); }
+      function pause(){ if (state===State.Playing) state=State.Paused; else if (state===State.Paused) state=State.Playing; }
+
+      document.getElementById('startBtn').onclick = flap;
+      document.getElementById('restartBtn').onclick = restart;
+      document.getElementById('pauseBtn').onclick = pause;
+      window.addEventListener('pointerdown', flap);
+      window.addEventListener('keydown', (e)=>{
+        if (e.code==='Space'){ e.preventDefault(); flap(); }
+        if (e.code==='KeyR'){ restart(); }
+        if (e.code==='KeyP'){ pause(); }
+      });
+
+      // Overlay refs
+      const overlay = document.getElementById('scoreOverlay');
+      const handleInput = document.getElementById('handleInput');
+      const saveBtn = document.getElementById('saveScoreBtn');
+      const skipBtn = document.getElementById('skipBtn');
+      const scorePreview = document.getElementById('scorePreview');
+
+      function showOverlay(){
+        overlay.style.display = 'flex';
+        overlay.setAttribute('aria-hidden','false');
+        scorePreview.textContent = `Your score: ${score}`;
+        const last = localStorage.getItem('kiwi_last_handle')||'';
+        handleInput.value = last.startsWith('@')? last : last;
+        setTimeout(()=> handleInput.focus(), 50);
+      }
+      function hideOverlay(){ overlay.style.display = 'none'; overlay.setAttribute('aria-hidden','true'); }
+
+      saveBtn.addEventListener('click', ()=>{ submitScore(handleInput.value); hideOverlay(); });
+      skipBtn.addEventListener('click', ()=>{ submitScore(''); hideOverlay(); });
+      handleInput.addEventListener('keydown', (e)=>{ if (e.key==='Enter'){ submitScore(handleInput.value); hideOverlay(); }});
+
+      function reset(){
+        state = State.Ready; scoreSaved = false;
+        kiwi.x = W*0.28; kiwi.y = H*0.45; kiwi.vy = 0; kiwi.r = 18;
+        pipes = []; pipeTimer = 0; spawnInt = 1.25; speed = 200; score = 0;
+      }
+
+      // Drawing
+      function drawBackground(){
+        const cloudY = [80, 140, 60, 110];
+        for (let i=0;i<4;i++){
+          const x = (W - ((time*20*(i+1)) % (W+220))) - 180;
+          drawCloud(x, cloudY[i]);
+        }
+        ctx.fillStyle = '#2e8b57';
+        ctx.fillRect(0, H-60, W, 60);
+        ctx.fillStyle = '#387c4b';
+        for (let i=0;i<W;i+=18) ctx.fillRect(i, H-60 + (i%36?8:0), 18, 60);
+      }
+      function drawCloud(x,y){
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.beginPath();
+        const r=24; ctx.arc(x, y, r, 0, Math.PI*2);
+        ctx.arc(x+28, y-8, r*0.9, 0, Math.PI*2);
+        ctx.arc(x+56, y, r*1.1, 0, Math.PI*2);
+        ctx.arc(x+84, y-4, r*0.85, 0, Math.PI*2);
+        ctx.closePath(); ctx.fill();
+      }
+
+      function drawKiwi(k){
+        ctx.save();
+        ctx.translate(k.x, k.y);
+        const tilt = clamp(k.vy/600, -0.6, 0.6);
+        ctx.rotate(tilt);
+
+        ctx.fillStyle = '#7a5a3f';
+        ctx.strokeStyle = '#5e462f';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.ellipse(0, 0, k.r*1.2, k.r*1.05, 0.1, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
+        ctx.fillStyle = '#9b7757';
+        ctx.beginPath(); ctx.ellipse(-4, 4, k.r*0.7, k.r*0.6, 0.3, 0, Math.PI*2); ctx.fill();
+
+        const wingOff = Math.sin(time*9) * 5;
+        ctx.save();
+        ctx.translate(-6, -3);
+        ctx.rotate(-0.6 + wingOff*0.03);
+        ctx.fillStyle = '#654b34';
+        ctx.beginPath();
+        ctx.moveTo(-k.r*0.2, 0);
+        ctx.quadraticCurveTo(-k.r*0.9, -8, -k.r*0.6, -18);
+        ctx.quadraticCurveTo(-2, -10, 0, 0);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+
+        ctx.fillStyle = '#7a5a3f';
+        ctx.beginPath(); ctx.ellipse(k.r*0.6, -k.r*0.25, k.r*0.6, k.r*0.5, 0, 0, Math.PI*2); ctx.fill();
+
+        ctx.fillStyle = '#000';
+        ctx.beginPath(); ctx.arc(k.r*0.95, -k.r*0.33, 3, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(k.r*0.9, -k.r*0.37, 1.3, 0, Math.PI*2); ctx.fill();
+
+        ctx.strokeStyle = '#d9b36b';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(k.r*1.0, -k.r*0.28);
+        ctx.lineTo(k.r*2.1, -k.r*0.24);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#b08a55';
+        ctx.lineWidth = 2.5;
+        const footY = k.r*0.9;
+        ctx.beginPath(); ctx.moveTo(-6, footY); ctx.lineTo(-6, footY+12); ctx.stroke();
+        ctx.beginPath(); ctx.MoveTo= null
+        ctx.beginPath(); ctx.moveTo(4, footY-2); ctx.lineTo(4, footY+11); ctx.stroke();
+
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(-6, footY+12); ctx.lineTo(-12, footY+14); ctx.moveTo(-6, footY+12); ctx.lineTo(-2, footY+15); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(4, footY+11); ctx.lineTo(0, footY+14); ctx.moveTo(4, footY+11); ctx.lineTo(10, footY+13); ctx.stroke();
+
+        ctx.restore();
+      }
+
+      function addPipe(){
+        const gap = clamp(190 - score*1.5, 140, 190);
+        const topH = rand(60, H-160-gap);
+        const bottomY = topH + gap;
+        pipes.push({ x: W+20, top: topH, bottom: H - bottomY, passed:false });
+      }
+
+      function update(dt){
+        if (state!==State.Playing) return;
+
+        speed = 200 + Math.min(120, score*2);
+
+        kiwi.vy = clamp(kiwi.vy + gravity*dt, -9999, termVel);
+        kiwi.y += kiwi.vy*dt;
+
+        if (kiwi.y > H-60-kiwi.r || kiwi.y < kiwi.r) die();
+
+        pipeTimer += dt;
+        if (pipeTimer >= spawnInt){ pipeTimer = 0; addPipe(); }
+
+        for (const p of pipes){ p.x -= speed*dt; }
+        pipes = pipes.filter(p=> p.x > -100);
+
+        for (const p of pipes){
+          const pipeW = 80;
+          const kx = kiwi.x; const ky = kiwi.y; const kr = kiwi.r*0.9;
+          const inX = (kx+kr > p.x) && (kx-kr < p.x+pipeW);
+          if (inX){
+            const gapTop = p.top; const gapBottom = H-60 - p.bottom;
+            if (ky-kr < gapTop || ky+kr > gapBottom) die();
+          }
+          if (!p.passed && p.x + pipeW < kiwi.x){ p.passed = true; score++; if (score%8===0) spawnInt = Math.max(0.95, spawnInt-0.05); }
+        }
+      }
+
+      function die(){
+        if (state !== State.Playing) return;
+        state = State.Dead;
+        best = Math.max(best, score);
+        localStorage.setItem('kiwi_best', best);
+        scoreSaved = false;
+        showOverlay();
+      }
+
+      function drawPipes(){
+        const pipeW = 80;
+        for (const p of pipes){
+          const x = Math.floor(p.x);
+          ctx.fillStyle = '#2b9348';
+          ctx.fillRect(x, 0, pipeW, p.top);
+          ctx.fillStyle = '#1f7a39'; ctx.fillRect(x-4, p.top-16, pipeW+8, 16);
+          const gapBottomY = H-60 - p.bottom;
+          ctx.fillStyle = '#2b9348';
+          ctx.fillRect(x, gapBottomY, pipeW, p.bottom);
+          ctx.fillStyle = '#1f7a39'; ctx.fillRect(x-4, gapBottomY, pipeW+8, 16);
+        }
+      }
+
+      function drawHUD(){
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        ctx.fillRect(12, 12, 160, 64);
+        ctx.fillStyle = '#fff';
+        ctx.font = '600 24px ui-sans-serif, system-ui';
+        ctx.fillText(`Score: ${score}`, 24, 44);
+        ctx.font = '14px ui-sans-serif, system-ui';
+        ctx.fillText(`Best: ${best}`, 24, 68);
+        ctx.restore();
+
+        if (state===State.Ready){
+          centerText('Click / Tap / Space to Start', 0, -20, 28);
+          centerText('Press P to Pause • R to Restart', 0, 20, 16);
+          drawLeaderboardPanel(W/2 - 170, H/2 + 70);
+        } else if (state===State.Paused){
+          centerText('Paused', 0, -10, 36);
+          centerText('Press P to Resume', 0, 26, 18);
+        } else if (state===State.Dead){
+          centerText('You got liquidated! 💥', 0, -120, 36);
+          centerText(`Score ${score}  •  Best ${best}`, 0, -78, 22);
+          if (scoreSaved){
+            centerText('Saved! Press R to Restart', 0, -40, 18);
+          } else {
+            centerText('Enter your handle to save', 0, -40, 18);
+          }
+          drawLeaderboardPanel(W/2 - 170, H/2 - 10);
+        }
+      }
+
+      function drawLeaderboardPanel(x, y){
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.35)';
+        ctx.fillRect(x, y, 340, 230);
+        ctx.fillStyle = '#fff';
+        ctx.font = '700 18px ui-sans-serif, system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText('Top 10 Players', x+170, y+18);
+
+        ctx.textAlign = 'left';
+        ctx.font = '600 14px ui-sans-serif, system-ui';
+        const rows = leaderboard.slice(0,10);
+        for (let i=0;i<rows.length;i++){
+          const r = rows[i];
+          const rank = (i+1).toString().padStart(2,' ');
+          const name = r.name || 'Anonymous';
+          const sc = r.score||0;
+          const lineY = y + 42 + i*18;
+          ctx.fillStyle = 'rgba(255,255,255,0.9)';
+          ctx.fillText(`${rank}.`, x+18, lineY);
+          ctx.fillText(`${name}`, x+54, lineY);
+          ctx.textAlign = 'right';
+          ctx.fillText(`${sc}`, x+320, lineY);
+          ctx.textAlign = 'left';
+        }
+
+        ctx.fillStyle = 'rgba(255,255,255,0.75)';
+        ctx.font = '12px ui-sans-serif, system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText('Scores saved locally in this browser', x+170, y+210);
+        ctx.restore();
+      }
+
+      function centerText(text, dx, dy, size){
+        ctx.save();
+        ctx.font = `700 ${size||28}px ui-sans-serif, system-ui`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.fillText(text, W/2+dx+2, H/2+dy+2);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(text, W/2+dx, H/2+dy);
+        ctx.restore();
+      }
+
+      function frame(now){
+        dt = Math.min(0.033, (now-last)/1000); last = now; time += dt;
+        ctx.clearRect(0,0,W,H);
+        drawBackground();
+        if (state!==State.Paused){ update(dt); }
+        drawPipes();
+        drawKiwi(kiwi);
+        drawHUD();
+        requestAnimationFrame(frame);
+      }
+
+      // Boot
+      reset();
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
